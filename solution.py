@@ -61,22 +61,19 @@ def monthly_data(data):
     return monthly_list
 
 
-def filter_by_shape(data):
+def filter_by_shape(data, shapes):
     """
         Filter by shape.
     """
-    shapes = ['Off-peak', 'PeakWD', 'PeakWE']
-    off_peak, peak_we, peak_wd = [], [], []
+    shapes_dict = {}
 
-    for record in data:
-        if record['shape'] == shapes[0]:
-            off_peak.append(record)
-        elif record['shape'] == shapes[1]:
-            peak_wd.append(record)
-        else:
-            peak_we.append(record)
+    for shape in shapes:
+        for record in data:
+            if shape == record['shape']:
+                shapes_dict[shape] = shapes_dict.get(shape, []) + [record]
 
-    return off_peak, peak_wd, peak_we
+
+    return shapes_dict
 
 
 def main():
@@ -86,16 +83,16 @@ def main():
     data = load_csv('HB_NORTH_CRR.csv')
     filtered_data = filter_data_by_date(data)
     monthly_records = monthly_data(filtered_data)
+    shapes = {record['shape'] for record in data}
     records = []
 
     for month_record in monthly_records:
-        off_peak_list, peak_wd_list, peak_we_list = filter_by_shape(month_record)
+        shapes_dict = filter_by_shape(month_record, shapes)
         
-        off_peak = sorted(off_peak_list, key = lambda x: x.get('sequence'), reverse=True)[-1]
-        peak_wd = sorted(peak_wd_list, key = lambda x: x.get('sequence'), reverse=True)[-1]
-        peak_we = sorted(peak_we_list, key = lambda x: x.get('sequence'), reverse=True)[-1]
-
-        records += [off_peak, peak_wd, peak_we]
+        for record in shapes_dict.values():
+            entry = sorted(record, key = lambda x: x.get('sequence'), reverse=True)[-1]
+            if entry:
+                records.append(entry)
 
     filepath = os.getcwd() + '/answer.csv'
 
