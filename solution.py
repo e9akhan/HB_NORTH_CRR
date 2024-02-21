@@ -90,9 +90,9 @@ def main():
         shapes_dict = filter_by_shape(month_record, shapes)
         
         for record in shapes_dict.values():
-            entry = sorted(record, key = lambda x: x.get('sequence'), reverse=True)[-1]
+            entry = sorted(record, key = lambda x: x.get('sequence'), reverse=True)
             if entry:
-                records.append(entry)
+                records.append(entry[-1])
 
     filepath = os.getcwd() + '/answer.csv'
 
